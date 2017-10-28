@@ -1,4 +1,4 @@
-package pl.marcinchwedczuk.checkout3.impl;
+package pl.marcinchwedczuk.checkout3.checkout.infrastructure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,9 +9,10 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.marcinchwedczuk.checkout3.app.CheckoutRequestDTO;
-import pl.marcinchwedczuk.checkout3.app.CheckoutResponseDTO;
-import pl.marcinchwedczuk.checkout3.app.ItemNotFoundException;
+import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutRequestDTO;
+import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutResponseDTO;
+import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutService;
+import pl.marcinchwedczuk.checkout3.checkout.application.ItemNotFoundException;
 
 import javax.validation.Valid;
 import java.util.List;

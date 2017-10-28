@@ -1,4 +1,4 @@
-package pl.marcinchwedczuk.checkout3.app;
+package pl.marcinchwedczuk.checkout3.checkout.application;
 
 import java.math.BigDecimal;
 

@@ -1,4 +1,6 @@
 package pl.marcinchwedczuk.checkout3.checkout.domain;
 
-public class DiscountType {
+public enum DiscountType {
+	ABSOLUTE,
+	PERCENTAGE
 }

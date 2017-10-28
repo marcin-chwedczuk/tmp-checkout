@@ -1,24 +1,26 @@
-package pl.marcinchwedczuk.checkout3.impl;
+package pl.marcinchwedczuk.checkout3.checkout.domain;
 
 import com.google.common.base.Strings;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.util.Objects;
 
 import static java.math.BigDecimal.ZERO;
 
 @Entity
-@Table(name = "item")
-public class Item {
-    @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
-    private Long id;
+@Table(name = "item",
+	uniqueConstraints = {
+		@UniqueConstraint(name = "uc_item_number", columnNames = { "item_number" })
+	})
+public class Item extends BaseEntity {
 
-    @Column(nullable = false, unique = true)
+	// Use different column name to make adhoc queries easier
+	// because 'number' is reserved SQL keyword.
+    @Column(name = "item_number", nullable = false)
     private String number;
 
-    @Column(name="unit_price", nullable=false, precision=7, scale=2)
+    @Column(name="unit_price", nullable=false,
+			precision= MONETARY_PRECISION, scale= MONETARY_SCALE)
     private BigDecimal unitPrice;
 
     protected Item() {}
@@ -37,21 +39,13 @@ public class Item {
     @Override
     public String toString() {
         return "Item{" +
-                "id=" + id +
+                "id=" + getId() +
                 ", number='" + number + '\'' +
                 ", unitPrice=" + unitPrice +
                 '}';
     }
 
     // ---------- getters / setters ------------------------------
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
 
     public String getNumber() {
         return number;
