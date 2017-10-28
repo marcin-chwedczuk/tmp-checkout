@@ -1,4 +1,4 @@
-package pl.marcinchwedczuk.checkout3;
+package pl.marcinchwedczuk.checkout3.impl;
 
 import org.springframework.data.repository.CrudRepository;
 
