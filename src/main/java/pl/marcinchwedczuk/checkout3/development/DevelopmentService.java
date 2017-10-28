@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 import static java.math.BigDecimal.ZERO;
-import static pl.marcinchwedczuk.checkout3.checkout.domain.Utils.bigDec;
+import static pl.marcinchwedczuk.checkout3.checkout.domain.BigDecimals.bigDec;
 
 @Service
 public class DevelopmentService {
@@ -23,23 +23,48 @@ public class DevelopmentService {
 	private final QuantityPricingRuleRepository quantityPricingRuleRepository;
 
 	@Transactional
-	public void setupTestData() {
-		Item itemA = new Item("item_a", new BigDecimal("100.00"));
-		itemA = itemRepository.save(itemA);
+	public void initDatabase() {
+		// Clean database
+		quantityPricingRuleRepository.deleteAll();
+		itemRepository.deleteAll();
+		itemRepository.flush();
 
-		Item itemB = new Item("item_b", new BigDecimal("200.00"));
-		itemB = itemRepository.save(itemB);
+		// Create items A..F
+		for (char suffix = 'A'; suffix < 'G'; suffix++) {
+			Item item = new Item("ITEM_" + suffix, BigDecimals.HUNDRED);
+			itemRepository.save(item);
+		}
 
-		QuantityPricingRule rule = new QuantityPricingRule();
+		// Create rule for ITEM_A
+		{
+			QuantityDiscountRule ruleA = new QuantityDiscountRule();
 
-		rule.setItem(itemA);
-		rule.setMinQuantityInclusive(ZERO);
-		rule.setMaxQuantityExclusive(bigDec(1_000_000));
-		rule.setDiscount(DiscountVO.absolute(bigDec(100)));
+			Item itemA = itemRepository.findByNumber("ITEM_A").get();
+			ruleA.setItem(itemA);
+			ruleA.setMinQuantityInclusive(bigDec(300));
+			ruleA.setMaxQuantityExclusive(bigDec(1_000_000));
+			ruleA.setDiscount(DiscountVO.absolute(bigDec(10)));
 
-		rule.setValidFrom(LocalDateTime.of(2010,1,1, 0,0));
-		rule.setValidTo(LocalDateTime.of(2020,1,1, 0,0));
+			ruleA.setValidFrom(LocalDateTime.of(2010, 1, 1, 0, 0));
+			ruleA.setValidTo(LocalDateTime.of(2020, 1, 1, 0, 0));
 
-		quantityPricingRuleRepository.save(rule);
+			quantityPricingRuleRepository.save(ruleA);
+		}
+
+		// Create rule for ITEM_B
+		{
+			QuantityDiscountRule ruleB = new QuantityDiscountRule();
+
+			Item itemB = itemRepository.findByNumber("ITEM_B").get();
+			ruleB.setItem(itemB);
+			ruleB.setMinQuantityInclusive(bigDec(100));
+			ruleB.setMaxQuantityExclusive(bigDec(1_000_000));
+			ruleB.setDiscount(DiscountVO.percentage(bigDec(50)));
+
+			ruleB.setValidFrom(LocalDateTime.of(2010, 1, 1, 0, 0));
+			ruleB.setValidTo(LocalDateTime.of(2020, 1, 1, 0, 0));
+
+			quantityPricingRuleRepository.save(ruleB);
+		}
 	}
 }

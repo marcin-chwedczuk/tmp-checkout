@@ -4,8 +4,8 @@ import javax.persistence.*;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "quantity_rule")
-public class QuantityPricingRule extends PricingRule {
+@Table(name = "quantity_discount_rule")
+public class QuantityDiscountRule extends DiscountRule {
 	@ManyToOne
 	@JoinColumn(name = "item_id", nullable = false,
 			foreignKey = @ForeignKey(name = "fk_quantity_rule_item_id"))
@@ -33,7 +33,7 @@ public class QuantityPricingRule extends PricingRule {
 
 	@Override
 	public String toString() {
-		return "QuantityPricingRule{" +
+		return "QuantityDiscountRule{" +
 				"item=" + item +
 				", discount=" + discount +
 				"} " + super.toString();

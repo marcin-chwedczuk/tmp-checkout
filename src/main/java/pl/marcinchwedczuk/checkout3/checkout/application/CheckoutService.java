@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.*;
 import static pl.marcinchwedczuk.checkout3.checkout.domain.BigDecimals.summingBigDecimal;
 
@@ -32,7 +31,7 @@ public class CheckoutService {
 				.collect(groupingBy(CheckoutLineDTO::getItemNumber,
 						mapping(CheckoutLineDTO::getQuantity, summingBigDecimal())));
 
-		List<Item> items = itemRepository.findAllByNumbers(quantityByItemNumber.keySet());
+		List<Item> items = itemRepository.findAllByNumber(quantityByItemNumber.keySet());
 
 		List<ItemPricingData> itemPricingDataList = items.stream()
 				.map(item -> ItemPricingData.fromItemAndQuantity(
@@ -47,11 +46,13 @@ public class CheckoutService {
 		}
 
 
-		return null;
+		CheckoutResponseDTO checkoutResponseDTO =
+				createResponse(checkoutRequest, itemPricingDataList);
+		return checkoutResponseDTO;
 	}
 
 	private void applyQuantityDiscount(LocalDateTime checkoutTime, ItemPricingData pricingData) {
-		List<QuantityPricingRule> applicableRules =
+		List<QuantityDiscountRule> applicableRules =
 				quantityPricingRuleRepository.findApplicableRules(
 					pricingData.getItem(),
 					pricingData.getQuantity(),
@@ -64,12 +65,33 @@ public class CheckoutService {
 					"Found more than one applicable quantity rule.");
 
 		if (!applicableRules.isEmpty()) {
-			QuantityPricingRule rule = applicableRules.get(0);
+			QuantityDiscountRule rule = applicableRules.get(0);
 
 			BigDecimal discountedPrice = pricingCalculator.computeDiscountedPrice(
 					pricingData.getOriginalUnitPrice(), rule);
 
 			pricingData.setDiscountedPrice(discountedPrice);
 		}
+	}
+
+	private CheckoutResponseDTO createResponse(
+			CheckoutRequestDTO checkoutRequest, List<ItemPricingData> pricingDataList) {
+
+		CheckoutResponseDTO responseDTO = new CheckoutResponseDTO();
+
+		responseDTO.setCheckoutTime(checkoutRequest.getCheckoutTime());
+		responseDTO.setPricedLines(new ArrayList<>());
+
+		for (ItemPricingData pricingData : pricingDataList) {
+			PricedLineDTO pricedLineDTO = new PricedLineDTO();
+
+			pricedLineDTO.setItemNumber(pricingData.getItem().getNumber());
+			pricedLineDTO.setPrice(pricingData.getDiscountedPrice());
+			pricedLineDTO.setQuantity(pricingData.getQuantity());
+
+			responseDTO.getPricedLines().add(pricedLineDTO);
+		}
+
+		return responseDTO;
 	}
 }

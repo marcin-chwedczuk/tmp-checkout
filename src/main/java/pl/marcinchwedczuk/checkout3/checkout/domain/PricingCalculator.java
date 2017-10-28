@@ -1,13 +1,12 @@
 package pl.marcinchwedczuk.checkout3.checkout.domain;
 
-import com.google.common.base.Preconditions;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
 @Service
 public class PricingCalculator {
-	public BigDecimal computeDiscountedPrice(BigDecimal price, QuantityPricingRule rule) {
+	public BigDecimal computeDiscountedPrice(BigDecimal price, QuantityDiscountRule rule) {
 		DiscountVO discount = rule.getDiscount();
 		BigDecimal discountedPrice = null;
 

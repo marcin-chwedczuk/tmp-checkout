@@ -5,7 +5,7 @@ import javax.persistence.MappedSuperclass;
 import java.time.LocalDateTime;
 
 @MappedSuperclass
-public abstract class PricingRule extends BaseEntity {
+public abstract class DiscountRule extends BaseEntity {
 	@Column(name = "valid_from", nullable = true)
 	private LocalDateTime validFrom;
 

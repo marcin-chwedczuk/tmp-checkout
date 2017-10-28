@@ -5,7 +5,7 @@ import java.util.List;
 
 public class CheckoutResponseDTO {
 	private LocalDateTime checkoutTime;
-	private List<PricedCheckoutLineDTO> pricedCheckoutLines;
+	private List<PricedLineDTO> pricedLines;
 
 	// getter / setter
 
@@ -17,11 +17,11 @@ public class CheckoutResponseDTO {
 		this.checkoutTime = checkoutTime;
 	}
 
-	public List<PricedCheckoutLineDTO> getPricedCheckoutLines() {
-		return pricedCheckoutLines;
+	public List<PricedLineDTO> getPricedLines() {
+		return pricedLines;
 	}
 
-	public void setPricedCheckoutLines(List<PricedCheckoutLineDTO> pricedCheckoutLines) {
-		this.pricedCheckoutLines = pricedCheckoutLines;
+	public void setPricedLines(List<PricedLineDTO> pricedLines) {
+		this.pricedLines = pricedLines;
 	}
 }

@@ -1,7 +1,5 @@
 package pl.marcinchwedczuk.checkout3.checkout.domain;
 
-import com.sun.javaws.exceptions.InvalidArgumentException;
-
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;

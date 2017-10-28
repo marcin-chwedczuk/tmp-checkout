@@ -2,7 +2,7 @@ package pl.marcinchwedczuk.checkout3.checkout.application;
 
 import java.math.BigDecimal;
 
-public class PricedCheckoutLineDTO {
+public class PricedLineDTO {
 	private String itemNumber;
 	private BigDecimal quantity;
 	private BigDecimal price;

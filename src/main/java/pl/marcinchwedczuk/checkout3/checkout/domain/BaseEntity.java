@@ -7,8 +7,8 @@ import javax.persistence.MappedSuperclass;
 
 @MappedSuperclass
 public abstract class BaseEntity {
-	protected static final int MONETARY_PRECISION = 7;
-	protected static final int MONETARY_SCALE = 2;
+	public static final int MONETARY_PRECISION = 7;
+	public static final int MONETARY_SCALE = 2;
 
 	@Id
 	@GeneratedValue(strategy= GenerationType.AUTO)
