@@ -1,6 +1,7 @@
-package pl.marcinchwedczuk.checkout3.checkout.domain;
+package pl.marcinchwedczuk.checkout3.checkout.domain.pricing;
 
 import org.springframework.stereotype.Service;
+import pl.marcinchwedczuk.checkout3.checkout.domain.*;
 import pl.marcinchwedczuk.checkout3.checkout.utils.BigDecimals;
 
 import java.math.BigDecimal;

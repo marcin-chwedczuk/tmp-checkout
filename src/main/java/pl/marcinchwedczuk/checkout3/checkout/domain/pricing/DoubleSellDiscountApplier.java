@@ -2,7 +2,6 @@ package pl.marcinchwedczuk.checkout3.checkout.domain.pricing;
 
 import org.springframework.stereotype.Service;
 import pl.marcinchwedczuk.checkout3.checkout.domain.DoubleSellDiscountRule;
-import pl.marcinchwedczuk.checkout3.checkout.domain.PricingCalculator;
 
 import java.math.BigDecimal;
 import java.util.Collection;
