@@ -1,6 +1,7 @@
 package pl.marcinchwedczuk.checkout3.checkout.domain;
 
 import org.springframework.stereotype.Service;
+import pl.marcinchwedczuk.checkout3.checkout.utils.BigDecimals;
 
 import java.math.BigDecimal;
 
@@ -24,7 +25,7 @@ public class PricingCalculator {
 		}
 
 		if (discountedPrice.compareTo(BigDecimal.ZERO) <= 0)
-			throw new CheckoutException(
+			throw new RuntimeException(
 					"Invalid service configuration. After application of rule " +
 					rule.toString() + " for price " + price + " price is negative or zero.");
 

@@ -1,6 +1,7 @@
 package pl.marcinchwedczuk.checkout3.checkout.domain;
 
-import javax.persistence.Column;
+import pl.marcinchwedczuk.checkout3.checkout.utils.Utils;
+
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -40,6 +41,10 @@ public class DiscountVO implements Serializable {
 
 	public static DiscountVO percentage(BigDecimal value) {
 		return new DiscountVO(value, DiscountType.PERCENTAGE);
+	}
+
+	public static DiscountVO noDiscount() {
+		return new DiscountVO(BigDecimal.ZERO, DiscountType.ABSOLUTE);
 	}
 
 	// getter / setter -------------------------

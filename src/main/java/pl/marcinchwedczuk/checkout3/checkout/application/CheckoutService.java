@@ -6,16 +6,19 @@ import pl.marcinchwedczuk.checkout3.checkout.domain.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static java.util.stream.Collectors.*;
-import static pl.marcinchwedczuk.checkout3.checkout.domain.BigDecimals.summingBigDecimal;
+import static pl.marcinchwedczuk.checkout3.checkout.utils.BigDecimals.summingBigDecimal;
 
 @Service
 public class CheckoutService {
 	public CheckoutService(
 			ItemRepository itemRepository,
-			QuantityPricingRuleRepository quantityPricingRuleRepository,
+			QuantityDiscountRuleRepository quantityPricingRuleRepository,
 			PricingCalculator pricingCalculator) {
 		this.itemRepository = itemRepository;
 		this.quantityPricingRuleRepository = quantityPricingRuleRepository;
@@ -23,7 +26,7 @@ public class CheckoutService {
 	}
 
 	private final ItemRepository itemRepository;
-	private final QuantityPricingRuleRepository quantityPricingRuleRepository;
+	private final QuantityDiscountRuleRepository quantityPricingRuleRepository;
 	private final PricingCalculator pricingCalculator;
 
 	public CheckoutResponseDTO computePrices(CheckoutRequestDTO checkoutRequest) {
@@ -82,7 +85,7 @@ public class CheckoutService {
 		List<QuantityDiscountRule> applicableRules =
 				quantityPricingRuleRepository.findApplicableRules(
 					pricingData.getItem(),
-					pricingData.getQuantity(),
+					pricingData.getTotalQuantity(),
 					checkoutTime);
 
 		if (applicableRules.size() > 1)
@@ -97,10 +100,10 @@ public class CheckoutService {
 			BigDecimal discountedPrice = pricingCalculator.computeDiscountedPrice(
 					pricingData.getOriginalUnitPrice(), rule);
 
-			pricingData.setDiscountedPrice(discountedPrice);
+			pricingData.setUnitPriceAfterQuantityDiscount(discountedPrice);
 		}
 		else {
-			pricingData.setDiscountedPrice(pricingData.getOriginalUnitPrice());
+			pricingData.setUnitPriceAfterQuantityDiscount(pricingData.getOriginalUnitPrice());
 		}
 	}
 
@@ -116,10 +119,10 @@ public class CheckoutService {
 			PricedLineDTO pricedLineDTO = new PricedLineDTO();
 
 			pricedLineDTO.setOriginalUnitPrice(pricingData.getOriginalUnitPrice());
-			pricedLineDTO.setFinalUnitPrice(pricingData.getDiscountedPrice());
+			pricedLineDTO.setFinalUnitPrice(pricingData.getUnitPriceAfterQuantityDiscount());
 
 			pricedLineDTO.setItemNumber(pricingData.getItem().getNumber());
-			pricedLineDTO.setQuantity(pricingData.getQuantity());
+			pricedLineDTO.setQuantity(pricingData.getTotalQuantity());
 
 			responseDTO.getLines().add(pricedLineDTO);
 		}

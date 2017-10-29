@@ -1,8 +1,7 @@
-package pl.marcinchwedczuk.checkout3.rest;
+package pl.marcinchwedczuk.checkout3.checkout.rest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
@@ -18,9 +17,7 @@ import pl.marcinchwedczuk.checkout3.checkout.infrastructure.ValidationErrorsDTO;
 import pl.marcinchwedczuk.checkout3.checkout.infrastructure.ValidationUtil;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 

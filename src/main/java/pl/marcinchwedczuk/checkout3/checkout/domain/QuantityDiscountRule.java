@@ -1,5 +1,8 @@
 package pl.marcinchwedczuk.checkout3.checkout.domain;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 
@@ -9,6 +12,7 @@ public class QuantityDiscountRule extends DiscountRule {
 	@ManyToOne
 	@JoinColumn(name = "item_id", nullable = false,
 			foreignKey = @ForeignKey(name = "fk_quantity_rule_item_id"))
+	@OnDelete(action = OnDeleteAction.CASCADE)
 	private Item item;
 
 	@Column(name = "min_qty_inclusive", nullable = false, precision = 10)

@@ -1,9 +1,9 @@
-package pl.marcinchwedczuk.checkout3.checkout.domain;
+package pl.marcinchwedczuk.checkout3.checkout.utils;
 
 import java.math.BigDecimal;
 
 import static java.math.BigDecimal.ZERO;
-import static pl.marcinchwedczuk.checkout3.checkout.domain.BigDecimals.HUNDRED;
+import static pl.marcinchwedczuk.checkout3.checkout.utils.BigDecimals.HUNDRED;
 
 public final class Utils {
 	private Utils() { }

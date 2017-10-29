@@ -1,6 +1,5 @@
 package pl.marcinchwedczuk.checkout3.checkout.application;
 
-import pl.marcinchwedczuk.checkout3.checkout.domain.BigDecimals;
 import pl.marcinchwedczuk.checkout3.checkout.domain.Item;
 
 import java.math.BigDecimal;
@@ -12,30 +11,30 @@ public class ItemPricingData {
 
 	private ItemPricingData(Item item, BigDecimal quantity) {
 		this.item = item;
-		this.quantity = quantity;
+		this.totalQuantity = quantity;
 	}
 
 	private final Item item;
-	private final BigDecimal quantity;
-	private BigDecimal discountedPrice;
+	private final BigDecimal totalQuantity;
+	private BigDecimal unitPriceAfterQuantityDiscount;
 
 	public Item getItem() {
 		return item;
 	}
 
-	public BigDecimal getQuantity() {
-		return quantity;
+	public BigDecimal getTotalQuantity() {
+		return totalQuantity;
 	}
 
 	public BigDecimal getOriginalUnitPrice() {
 		return item.getUnitPrice();
 	}
 
-	public void setDiscountedPrice(BigDecimal discountedPrice) {
-		this.discountedPrice = discountedPrice;
+	public void setUnitPriceAfterQuantityDiscount(BigDecimal unitPriceAfterQuantityDiscount) {
+		this.unitPriceAfterQuantityDiscount = unitPriceAfterQuantityDiscount;
 	}
 
-	public BigDecimal getDiscountedPrice() {
-		return discountedPrice;
+	public BigDecimal getUnitPriceAfterQuantityDiscount() {
+		return unitPriceAfterQuantityDiscount;
 	}
 }
