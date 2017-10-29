@@ -1,4 +1,4 @@
-package pl.marcinchwedczuk.checkout3.checkout.infrastructure;
+package pl.marcinchwedczuk.checkout3.rest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +13,8 @@ import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutRequestDTO;
 import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutResponseDTO;
 import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutService;
 import pl.marcinchwedczuk.checkout3.checkout.domain.CheckoutException;
+import pl.marcinchwedczuk.checkout3.checkout.infrastructure.ValidationErrorsDTO;
+import pl.marcinchwedczuk.checkout3.checkout.infrastructure.ValidationUtil;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -38,12 +40,11 @@ public class CheckoutController {
 			Errors validationErrors) {
 
 		if (validationErrors.hasErrors()) {
-			List<String> errors = validationErrors.getAllErrors().stream()
-					.map(DefaultMessageSourceResolvable::getDefaultMessage)
-					.collect(Collectors.toList());
+			ValidationErrorsDTO errorsDTO =
+					ValidationUtil.createUserFriendlyErrors(validationErrors);
 
 			return ResponseEntity.badRequest()
-					.body(errors);
+					.body(errorsDTO);
 		}
 
 		try {
@@ -53,6 +54,8 @@ public class CheckoutController {
 			return ResponseEntity.ok(checkoutResponseDTO);
 		}
 		catch (CheckoutException e) {
+			LOGGER.error("Business logic error.", e);
+
 			return ResponseEntity
 					.badRequest()
 					.body(e.getMessage());

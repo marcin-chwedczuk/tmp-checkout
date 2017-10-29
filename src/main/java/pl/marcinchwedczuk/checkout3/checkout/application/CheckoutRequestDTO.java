@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class CheckoutRequestDTO {
-	@NotNull(message = "You must provide request time.")
+	@NotNull(message = "Missing required value. You must provide date for which prices will be calculated.")
 	private LocalDateTime requestTime;
 
-	@NotEmpty(message = "You must provide list of items to price.")
+	@NotEmpty(message = "Missing required value. You must provide list of items to price.")
 	@Valid
 	private List<LineDTO> lines;
 

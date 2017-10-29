@@ -1,0 +1,8 @@
+{
+  "validationErrors": [
+    {
+      "fieldName": "lines",
+      "validationMessage": "Missing required value. You must provide list of items to price."
+    }
+  ]
+}

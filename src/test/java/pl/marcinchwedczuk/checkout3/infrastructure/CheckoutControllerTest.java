@@ -13,6 +13,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 import pl.marcinchwedczuk.checkout3.Checkout3Application;
+import pl.marcinchwedczuk.checkout3.TestUtils;
 import pl.marcinchwedczuk.checkout3.development.DevelopmentService;
 
 import java.io.IOException;
@@ -21,17 +22,13 @@ import java.nio.charset.Charset;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
+import static pl.marcinchwedczuk.checkout3.MediaTypes.APPLICATION_JSON_UTF8;
+import static pl.marcinchwedczuk.checkout3.MediaTypes.PLAIN_TEXT_UTF8;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Checkout3Application.class)
 @WebAppConfiguration
 public class CheckoutControllerTest {
-	private final MediaType APPLICATION_JSON_UTF8 =
-			new MediaType(
-					MediaType.APPLICATION_JSON.getType(),
-					MediaType.APPLICATION_JSON.getSubtype(),
-					Charset.forName("utf8"));
-
 	@Autowired
 	private WebApplicationContext webApplicationContext;
 
@@ -60,11 +57,33 @@ public class CheckoutControllerTest {
 				readResource("checkout_response_body_item_a_300_and_item_b_30.json")));
 	}
 
-	private static String readResource(String resourceName) throws IOException {
-		String resourceText = Resources.toString(
-				CheckoutControllerTest.class.getResource(resourceName),
-				Charsets.UTF_8);
+	@Test
+	public void checkout_given_data_with_unknown_item_returns_4xx_status_and_list_of_unknown_items() throws Exception {
+		mockMvc.perform(
+			post("/checkout")
+				.content(readResource("checkout_request_body_unknown_item.json"))
+				.contentType(APPLICATION_JSON_UTF8)
+		)
+		.andExpect(status().is4xxClientError())
+		.andExpect(content().contentType(PLAIN_TEXT_UTF8))
+		.andExpect(content().string(
+				readResource("checkout_response_body_unknown_item.txt")));
+	}
 
-		return resourceText;
+	@Test
+	public void checkout_given_data_with_missing_parts_returns4xx_status_and_error_message() throws Exception {
+		mockMvc.perform(
+				post("/checkout")
+						.content(readResource("checkout_request_body_missing_lines.json"))
+						.contentType(APPLICATION_JSON_UTF8)
+		)
+				.andExpect(status().is4xxClientError())
+				.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+				.andExpect(content().json(
+						readResource("checkout_response_body_missing_lines.json")));
+	}
+
+	private static String readResource(String resourceName) {
+		return TestUtils.readResource(CheckoutControllerTest.class, resourceName);
 	}
 }
