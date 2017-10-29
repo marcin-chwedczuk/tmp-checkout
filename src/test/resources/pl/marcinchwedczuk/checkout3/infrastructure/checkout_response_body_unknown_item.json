@@ -1,3 +1,3 @@
 {
-  "errorMessage": "Missing pricing information for item(s): 'ITEM_UNKNOWN'. Please check service configuration."
+  "errorMessage": "Unknown item(s): 'ITEM_UNKNOWN'. Please check service configuration."
 }

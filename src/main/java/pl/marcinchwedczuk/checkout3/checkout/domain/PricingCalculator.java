@@ -5,6 +5,8 @@ import pl.marcinchwedczuk.checkout3.checkout.utils.BigDecimals;
 
 import java.math.BigDecimal;
 
+import static java.math.BigDecimal.ONE;
+
 @Service
 public class PricingCalculator {
 	public BigDecimal computeDiscountedPrice(
@@ -42,8 +44,10 @@ public class PricingCalculator {
 				break;
 
 			case PERCENTAGE:
-				BigDecimal factor = discount.getDiscountValue().divide(
+				BigDecimal scaledPercent = discount.getDiscountValue().divide(
 						BigDecimals.HUNDRED, BaseEntity.MONETARY_SCALE, BigDecimal.ROUND_CEILING);
+
+				BigDecimal factor = ONE.subtract(scaledPercent);
 
 				discountedPrice = priceBeforeDiscount.multiply(factor);
 				break;
