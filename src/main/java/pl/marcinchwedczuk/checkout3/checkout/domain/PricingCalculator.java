@@ -52,6 +52,7 @@ public class PricingCalculator {
 				throw new IllegalArgumentException("Not supported discount type: " + discount.getDiscountType());
 		}
 
+		discountedPrice = discountedPrice.setScale(BaseEntity.MONETARY_SCALE, BigDecimal.ROUND_CEILING);
 		return discountedPrice;
 	}
 

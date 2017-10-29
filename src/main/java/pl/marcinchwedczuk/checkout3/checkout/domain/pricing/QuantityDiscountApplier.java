@@ -1,11 +1,13 @@
 package pl.marcinchwedczuk.checkout3.checkout.domain.pricing;
 
+import org.springframework.stereotype.Service;
 import pl.marcinchwedczuk.checkout3.checkout.domain.PricingCalculator;
 import pl.marcinchwedczuk.checkout3.checkout.domain.QuantityDiscountRule;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 
+@Service
 public class QuantityDiscountApplier {
 	public QuantityDiscountApplier(PricingCalculator pricingCalculator) {
 		this.pricingCalculator = pricingCalculator;

@@ -4,9 +4,9 @@ import com.google.common.base.Preconditions;
 import pl.marcinchwedczuk.checkout3.checkout.domain.Item;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
+import static java.util.Comparator.comparing;
 import static pl.marcinchwedczuk.checkout3.checkout.utils.BigDecimals.summingBigDecimal;
 
 public class ItemPricingData {
@@ -34,29 +34,35 @@ public class ItemPricingData {
 		return getUnitPriceAfterQuantityDiscount() != null;
 	}
 
-	public BigDecimal computeQuantityWithoutDoubleSellDiscount() {
-		BigDecimal doubleSellDiscountedQuantity = pricingSegments.stream()
+	public BigDecimal computeQuantityCoveredByDoubleSellDiscount() {
+		BigDecimal quantity = pricingSegments.stream()
 				.map(ItemPricingSegment::getQuantity)
 				.collect(summingBigDecimal());
 
-		return totalQuantity.subtract(doubleSellDiscountedQuantity);
+		return quantity;
 	}
 
-	public void createDiscountSegment(BigDecimal discountableQty, BigDecimal discountedPrice) {
-		BigDecimal totalDiscounted = discountableQty.add(computeQuantityWithoutDoubleSellDiscount());
+	public BigDecimal computeQuantityNotCoveredByDoubleSellDiscount() {
+		BigDecimal coveredQuantity = computeQuantityCoveredByDoubleSellDiscount();
+		return totalQuantity.subtract(coveredQuantity);
+	}
+
+	public void createDiscountSegment(BigDecimal segmentQuantity, BigDecimal segmentPrice) {
+		BigDecimal totalDiscounted = segmentQuantity.add(
+				computeQuantityCoveredByDoubleSellDiscount());
 
 		Preconditions.checkArgument(
 			totalDiscounted.compareTo(totalQuantity) <= 0,
 			"Total discounted quantity must be lower than totalQuantity.");
 
 		Preconditions.checkArgument(
-				discountedPrice.compareTo(unitPriceAfterQuantityDiscount) < 0,
+				segmentPrice.compareTo(unitPriceAfterQuantityDiscount) < 0,
 				"Segment may be created only when discount yields lower price.");
 
 		// Merge segments with the same price
 
 		ItemPricingSegment segmentWithSamePrice = pricingSegments.stream()
-				.filter(segment -> segment.getDiscountedPrice().equals(discountedPrice))
+				.filter(segment -> segment.getDiscountedPrice().equals(segmentPrice))
 				.findFirst().orElse(null);
 
 		if (segmentWithSamePrice != null) {
@@ -64,13 +70,33 @@ public class ItemPricingData {
 
 			pricingSegments.add(
 				new ItemPricingSegment(
-						segmentWithSamePrice.getQuantity().add(discountableQty),
+						segmentWithSamePrice.getQuantity().add(segmentQuantity),
 						segmentWithSamePrice.getDiscountedPrice()));
 		}
 		else {
 			pricingSegments.add(
-				new ItemPricingSegment(discountableQty, discountedPrice));
+				new ItemPricingSegment(segmentQuantity, segmentPrice));
 		}
+	}
+
+	public List<ItemPricingSegment> asSegments() {
+		List<ItemPricingSegment> segments = new ArrayList<>();
+
+		segments.addAll(pricingSegments);
+
+		// If there is still some qty not covered by double sell discounts
+		// create a separate segment for it.
+		BigDecimal qtyNotCoveredBySegments = computeQuantityNotCoveredByDoubleSellDiscount();
+		if (qtyNotCoveredBySegments.compareTo(BigDecimal.ZERO) > 0) {
+			segments.add(new ItemPricingSegment(
+					qtyNotCoveredBySegments, getUnitPriceAfterQuantityDiscount()));
+		}
+
+		segments.sort(
+				comparing(ItemPricingSegment::getQuantity)
+					.thenComparing(ItemPricingSegment::getDiscountedPrice).reversed());
+
+		return segments;
 	}
 
 	// getter / setter ------------------------------------------

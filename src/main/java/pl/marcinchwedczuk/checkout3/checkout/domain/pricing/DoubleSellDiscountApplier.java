@@ -48,10 +48,10 @@ public class DoubleSellDiscountApplier {
 			ItemPricingData item1PricingData, ItemPricingData item2PricingData)
 	{
 		BigDecimal discountableQty1 =
-				item1PricingData.computeQuantityWithoutDoubleSellDiscount();
+				item1PricingData.computeQuantityNotCoveredByDoubleSellDiscount();
 
 		BigDecimal discountableQty2 =
-				item2PricingData.computeQuantityWithoutDoubleSellDiscount();
+				item2PricingData.computeQuantityNotCoveredByDoubleSellDiscount();
 
 		return discountableQty1.min(discountableQty2);
 	}
