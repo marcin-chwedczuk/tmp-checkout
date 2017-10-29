@@ -65,9 +65,9 @@ public class CheckoutControllerTest {
 				.contentType(APPLICATION_JSON_UTF8)
 		)
 		.andExpect(status().is4xxClientError())
-		.andExpect(content().contentType(PLAIN_TEXT_UTF8))
-		.andExpect(content().string(
-				readResource("checkout_response_body_unknown_item.txt")));
+		.andExpect(content().contentType(APPLICATION_JSON_UTF8))
+		.andExpect(content().json(
+				readResource("checkout_response_body_unknown_item.json")));
 	}
 
 	@Test

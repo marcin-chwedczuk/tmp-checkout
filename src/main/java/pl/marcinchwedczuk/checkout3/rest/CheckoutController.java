@@ -13,6 +13,7 @@ import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutRequestDTO;
 import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutResponseDTO;
 import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutService;
 import pl.marcinchwedczuk.checkout3.checkout.domain.CheckoutException;
+import pl.marcinchwedczuk.checkout3.checkout.infrastructure.CheckoutErrorDTO;
 import pl.marcinchwedczuk.checkout3.checkout.infrastructure.ValidationErrorsDTO;
 import pl.marcinchwedczuk.checkout3.checkout.infrastructure.ValidationUtil;
 
@@ -54,11 +55,11 @@ public class CheckoutController {
 			return ResponseEntity.ok(checkoutResponseDTO);
 		}
 		catch (CheckoutException e) {
-			LOGGER.error("Business logic error.", e);
+			LOGGER.warn("Business logic error.", e);
 
 			return ResponseEntity
 					.badRequest()
-					.body(e.getMessage());
+					.body(new CheckoutErrorDTO(e.getMessage()));
 		}
 		catch (Exception e) {
 			LOGGER.error("Unhandled exception during checkout.", e);
