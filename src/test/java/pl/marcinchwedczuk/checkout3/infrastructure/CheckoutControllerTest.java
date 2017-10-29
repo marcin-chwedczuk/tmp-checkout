@@ -1,13 +1,11 @@
 package pl.marcinchwedczuk.checkout3.infrastructure;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Resources;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -16,18 +14,16 @@ import pl.marcinchwedczuk.checkout3.Checkout3Application;
 import pl.marcinchwedczuk.checkout3.TestUtils;
 import pl.marcinchwedczuk.checkout3.development.DevelopmentService;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.setup.MockMvcBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.setup.MockMvcBuilders.webAppContextSetup;
 import static pl.marcinchwedczuk.checkout3.MediaTypes.APPLICATION_JSON_UTF8;
-import static pl.marcinchwedczuk.checkout3.MediaTypes.PLAIN_TEXT_UTF8;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = Checkout3Application.class)
 @WebAppConfiguration
+@ActiveProfiles("test")
 public class CheckoutControllerTest {
 	@Autowired
 	private WebApplicationContext webApplicationContext;
