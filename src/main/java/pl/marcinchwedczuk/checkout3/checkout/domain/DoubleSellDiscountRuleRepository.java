@@ -5,14 +5,14 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 public interface DoubleSellDiscountRuleRepository extends JpaRepository<DoubleSellDiscountRule,Long> {
 	@Query("select r from DoubleSellDiscountRule r " +
-			"where r.item1 = :item1 " +
-			"and r.item2 = :item2 " +
-			"and r.validFrom <= :date " +
-			"and r.validTo > :date")
+			"where r.item1.id in :itemIds " +
+			"and r.item2.id in :itemIds " +
+			"and (r.validFrom is null or r.validFrom <= :date) " +
+			"and (r.validTo is null or r.validTo > :date)")
 	List<DoubleSellDiscountRule> findApplicableRules(
-			Item item1, Item item2,
-			LocalDateTime date);
+			LocalDateTime date, Set<Long> itemIds);
 }

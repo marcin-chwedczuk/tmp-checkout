@@ -7,29 +7,58 @@ import java.math.BigDecimal;
 
 @Service
 public class PricingCalculator {
-	public BigDecimal computeDiscountedPrice(BigDecimal price, QuantityDiscountRule rule) {
-		DiscountVO discount = rule.getDiscount();
-		BigDecimal discountedPrice = null;
+	public BigDecimal computeDiscountedPrice(
+			BigDecimal priceBeforeDiscount, QuantityDiscountRule discountRule) {
+		return computeDiscountedPrice(
+				priceBeforeDiscount, discountRule.getDiscount(), discountRule);
+	}
+
+	public BigDecimal computeDiscountedPriceForItem(
+			Item item, BigDecimal priceBeforeDiscount, DoubleSellDiscountRule discountRule)
+	{
+		DiscountVO discount = discountRule.getDiscountForItem(item);
+
+		return computeDiscountedPrice(
+				priceBeforeDiscount, discount, discountRule);
+	}
+
+	private BigDecimal computeDiscountedPrice(
+			BigDecimal priceBeforeDiscount, DiscountVO discount, DiscountRule discountRule)
+	{
+		BigDecimal discountedPrice =
+				computeDiscountedPrice(priceBeforeDiscount, discount);
+
+		assertPriceNotNegativeOrZero(priceBeforeDiscount, discountedPrice, discountRule);
+
+		return discountedPrice;
+	}
+
+	private BigDecimal computeDiscountedPrice(BigDecimal priceBeforeDiscount, DiscountVO discount) {
+		BigDecimal discountedPrice;
 
 		switch (discount.getDiscountType()) {
 			case ABSOLUTE:
-				discountedPrice = price.subtract(discount.getDiscountValue());
+				discountedPrice = priceBeforeDiscount.subtract(discount.getDiscountValue());
 				break;
 
 			case PERCENTAGE:
 				BigDecimal factor = discount.getDiscountValue().divide(
 						BigDecimals.HUNDRED, BaseEntity.MONETARY_SCALE, BigDecimal.ROUND_CEILING);
 
-				discountedPrice = price.multiply(factor);
+				discountedPrice = priceBeforeDiscount.multiply(factor);
 				break;
-		}
 
-		if (discountedPrice.compareTo(BigDecimal.ZERO) <= 0)
-			throw new RuntimeException(
-					"Invalid service configuration. After application of rule " +
-					rule.toString() + " for price " + price + " price is negative or zero.");
+			default:
+				throw new IllegalArgumentException("Not supported discount type: " + discount.getDiscountType());
+		}
 
 		return discountedPrice;
 	}
 
+	private void assertPriceNotNegativeOrZero(BigDecimal price, BigDecimal discountedPrice, DiscountRule rule) {
+		if (discountedPrice.compareTo(BigDecimal.ZERO) <= 0)
+			throw new RuntimeException(
+				"Invalid service configuration. After application of rule " +
+				rule.toString() + " for price " + price + " price is negative or zero.");
+	}
 }

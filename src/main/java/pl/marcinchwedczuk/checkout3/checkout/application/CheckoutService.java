@@ -3,6 +3,10 @@ package pl.marcinchwedczuk.checkout3.checkout.application;
 import com.google.common.collect.Sets;
 import org.springframework.stereotype.Service;
 import pl.marcinchwedczuk.checkout3.checkout.domain.*;
+import pl.marcinchwedczuk.checkout3.checkout.domain.pricing.CheckoutPricingData;
+import pl.marcinchwedczuk.checkout3.checkout.domain.pricing.DoubleSellDiscountApplier;
+import pl.marcinchwedczuk.checkout3.checkout.domain.pricing.ItemPricingData;
+import pl.marcinchwedczuk.checkout3.checkout.domain.pricing.QuantityDiscountApplier;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,18 +23,38 @@ public class CheckoutService {
 	public CheckoutService(
 			ItemRepository itemRepository,
 			QuantityDiscountRuleRepository quantityPricingRuleRepository,
-			PricingCalculator pricingCalculator) {
+			DoubleSellDiscountRuleRepository doubleSellDiscountRuleRepository,
+			DoubleSellDiscountApplier doubleSellDiscountApplier,
+			QuantityDiscountApplier quantityDiscountApplier)
+	{
 		this.itemRepository = itemRepository;
 		this.quantityPricingRuleRepository = quantityPricingRuleRepository;
-		this.pricingCalculator = pricingCalculator;
+		this.doubleSellDiscountRuleRepository = doubleSellDiscountRuleRepository;
+		this.doubleSellDiscountApplier = doubleSellDiscountApplier;
+		this.quantityDiscountApplier = quantityDiscountApplier;
 	}
 
 	private final ItemRepository itemRepository;
 	private final QuantityDiscountRuleRepository quantityPricingRuleRepository;
-	private final PricingCalculator pricingCalculator;
+	private final DoubleSellDiscountRuleRepository doubleSellDiscountRuleRepository;
+	private final DoubleSellDiscountApplier doubleSellDiscountApplier;
+	private final QuantityDiscountApplier quantityDiscountApplier;
 
 	public CheckoutResponseDTO computePrices(CheckoutRequestDTO checkoutRequest) {
+		CheckoutPricingData checkoutPricingData =
+				createCheckoutPricingDataFromRequest(checkoutRequest);
 
+		LocalDateTime checkoutTime = checkoutRequest.getRequestTime();
+
+		applyQuantityDiscounts(checkoutTime, checkoutPricingData);
+		applyDoubleSellDiscounts(checkoutTime, checkoutPricingData);
+
+		CheckoutResponseDTO checkoutResponseDTO =
+				createResponse(checkoutRequest, checkoutPricingData);
+		return checkoutResponseDTO;
+	}
+
+	private CheckoutPricingData createCheckoutPricingDataFromRequest(CheckoutRequestDTO checkoutRequest) {
 		Map<String, BigDecimal> quantityByItemNumber = checkoutRequest.getLines().stream()
 				.collect(groupingBy(LineDTO::getItemNumber,
 						mapping(LineDTO::getQuantity, summingBigDecimal())));
@@ -39,27 +63,33 @@ public class CheckoutService {
 		assertHavePricesForAllItems(items, checkoutRequest.getLines());
 
 		List<ItemPricingData> itemPricingDataList = items.stream()
-				.map(item -> createPricingData(item, quantityByItemNumber))
+				.map(item -> {
+					BigDecimal requestedQuantity =
+							quantityByItemNumber.get(item.getNumber());
+
+					return ItemPricingData.fromItemAndTotalQuantity(item, requestedQuantity);
+				})
 				.collect(toList());
 
-		// 1. Apply quantity rules
-		LocalDateTime checkoutTime = checkoutRequest.getRequestTime();
-
-		for (ItemPricingData pricingData : itemPricingDataList) {
-			applyQuantityDiscount(checkoutTime, pricingData);
-		}
-
-
-		CheckoutResponseDTO checkoutResponseDTO =
-				createResponse(checkoutRequest, itemPricingDataList);
-		return checkoutResponseDTO;
+		return new CheckoutPricingData(itemPricingDataList);
 	}
 
-	private ItemPricingData createPricingData(Item item, Map<String, BigDecimal> quantityByItemNumber) {
-		BigDecimal requestedQuantity =
-				quantityByItemNumber.get(item.getNumber());
+	private void applyQuantityDiscounts(LocalDateTime requestTime, CheckoutPricingData checkoutPricingData) {
+		Set<Long> itemIds = checkoutPricingData.getItemIds();
 
-		return ItemPricingData.fromItemAndQuantity(item, requestedQuantity);
+		List<QuantityDiscountRule> applicableRules =
+				quantityPricingRuleRepository.findApplicableRules(requestTime, itemIds);
+
+		quantityDiscountApplier.applyQuantityDiscounts(checkoutPricingData, applicableRules);
+	}
+
+	private void applyDoubleSellDiscounts(LocalDateTime requestTime, CheckoutPricingData checkoutPricingData) {
+		Set<Long> itemIds = checkoutPricingData.getItemIds();
+
+		List<DoubleSellDiscountRule> applicableRules =
+				doubleSellDiscountRuleRepository.findApplicableRules(requestTime, itemIds);
+
+		doubleSellDiscountApplier.applyDoubleSellDiscounts(checkoutPricingData, applicableRules);
 	}
 
 	private void assertHavePricesForAllItems(List<Item> items, List<LineDTO> checkoutLines) {
@@ -71,58 +101,33 @@ public class CheckoutService {
 				.map(Item::getNumber)
 				.collect(toSet());
 
-		Set<String> missing = Sets.difference(requiredItemNumbers, foundItemNumbers);
+		Set<String> missingItemNumbers =
+				Sets.difference(requiredItemNumbers, foundItemNumbers);
 
-		if (!missing.isEmpty()) {
+		if (!missingItemNumbers.isEmpty()) {
 			throw new CheckoutException(
 					"Missing pricing information for item(s): '" +
-					missing.stream().collect(joining("', '")) +
+					missingItemNumbers.stream().collect(joining("', '")) +
 					"'. Please check service configuration.");
 		}
 	}
 
-	private void applyQuantityDiscount(LocalDateTime checkoutTime, ItemPricingData pricingData) {
-		List<QuantityDiscountRule> applicableRules =
-				quantityPricingRuleRepository.findApplicableRules(
-					pricingData.getItem(),
-					pricingData.getTotalQuantity(),
-					checkoutTime);
-
-		if (applicableRules.size() > 1)
-			throw new RuntimeException(
-					"Invalid configuration for item: " +
-					pricingData.getItem().getNumber() + ". " +
-					"Found more than one applicable quantity rule.");
-
-		if (!applicableRules.isEmpty()) {
-			QuantityDiscountRule rule = applicableRules.get(0);
-
-			BigDecimal discountedPrice = pricingCalculator.computeDiscountedPrice(
-					pricingData.getOriginalUnitPrice(), rule);
-
-			pricingData.setUnitPriceAfterQuantityDiscount(discountedPrice);
-		}
-		else {
-			pricingData.setUnitPriceAfterQuantityDiscount(pricingData.getOriginalUnitPrice());
-		}
-	}
-
 	private CheckoutResponseDTO createResponse(
-			CheckoutRequestDTO checkoutRequest, List<ItemPricingData> pricingDataList) {
+			CheckoutRequestDTO checkoutRequest, CheckoutPricingData pricingDataList) {
 
 		CheckoutResponseDTO responseDTO = new CheckoutResponseDTO();
 
 		responseDTO.setRequestTime(checkoutRequest.getRequestTime());
 		responseDTO.setLines(new ArrayList<>());
 
-		for (ItemPricingData pricingData : pricingDataList) {
+		for (ItemPricingData itemPricingData : pricingDataList.lines()) {
 			PricedLineDTO pricedLineDTO = new PricedLineDTO();
 
-			pricedLineDTO.setOriginalUnitPrice(pricingData.getOriginalUnitPrice());
-			pricedLineDTO.setFinalUnitPrice(pricingData.getUnitPriceAfterQuantityDiscount());
+			pricedLineDTO.setOriginalUnitPrice(itemPricingData.getOriginalUnitPrice());
+			pricedLineDTO.setFinalUnitPrice(itemPricingData.getUnitPriceAfterQuantityDiscount());
 
-			pricedLineDTO.setItemNumber(pricingData.getItem().getNumber());
-			pricedLineDTO.setQuantity(pricingData.getTotalQuantity());
+			pricedLineDTO.setItemNumber(itemPricingData.getItem().getNumber());
+			pricedLineDTO.setQuantity(itemPricingData.getTotalQuantity());
 
 			responseDTO.getLines().add(pricedLineDTO);
 		}

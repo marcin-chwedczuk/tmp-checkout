@@ -35,6 +35,16 @@ public class QuantityDiscountRule extends DiscountRule {
 	// @formatter:on
 	private DiscountVO discount;
 
+	public boolean isApplicableToQuantity(BigDecimal quantity) {
+		if (quantity.compareTo(getMinQuantityInclusive()) < 0)
+			return false;
+
+		if (quantity.compareTo(getMaxQuantityExclusive()) >= 0)
+			return false;
+
+		return true;
+	}
+
 	@Override
 	public String toString() {
 		return "QuantityDiscountRule{" +

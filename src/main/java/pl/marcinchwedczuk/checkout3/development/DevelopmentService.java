@@ -89,6 +89,8 @@ public class DevelopmentService {
 	private void createDoubleSellDiscountRuleForItemsAB() {
 		DoubleSellDiscountRule doubleSellItemsABRule = new DoubleSellDiscountRule();
 
+		doubleSellItemsABRule.setPriority(100);
+
 		Item itemA = itemRepository.findByNumber("ITEM_A");
 		Item itemB = itemRepository.findByNumber("ITEM_B");
 

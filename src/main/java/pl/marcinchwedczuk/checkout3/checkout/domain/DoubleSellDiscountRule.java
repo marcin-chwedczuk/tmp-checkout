@@ -4,10 +4,14 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "double_sell_discount_rule")
 public class DoubleSellDiscountRule extends DiscountRule {
+	@Column(nullable = false)
+	private long priority;
+
 	@ManyToOne
 	@JoinColumn(name = "item1_id", nullable = false,
 			foreignKey = @ForeignKey(name = "fk_quantity_rule_item1_id"))
@@ -48,7 +52,30 @@ public class DoubleSellDiscountRule extends DiscountRule {
 	// @formatter:on
 	private DiscountVO discount2;
 
+	public DiscountVO getDiscountForItem(Item item) {
+		if (Objects.equals(item.getId(), getItem1().getId()))
+			return getDiscount1();
+
+		if (Objects.equals(item.getId(), getItem2().getId()))
+			return getDiscount2();
+
+		throw new IllegalArgumentException(
+				"Item '" + item.getNumber() + "' is not covered by rule.");
+	}
+
 	// getter / setter -----------------------------------
+
+	/**
+	 * @return Rule priority. Rules with higher priority values will be applied
+	 * before rules with lower priority values.
+	 */
+	public long getPriority() {
+		return priority;
+	}
+
+	public void setPriority(long priority) {
+		this.priority = priority;
+	}
 
 	public Item getItem1() {
 		return item1;
