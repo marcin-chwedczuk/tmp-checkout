@@ -67,6 +67,6 @@ public class DoubleSellDiscountApplier {
 		if (discountedPrice.equals(itemPricingData.getUnitPriceAfterQuantityDiscount()))
 			return;
 
-		itemPricingData.createDiscountSegment(discountableQty, discountedPrice);
+		itemPricingData.createDiscountSegmentFromQtyAndPrice(discountableQty, discountedPrice);
 	}
 }

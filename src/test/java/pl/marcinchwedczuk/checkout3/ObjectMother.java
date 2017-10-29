@@ -14,6 +14,8 @@ public final class ObjectMother {
 
 	private static AtomicLong globalId = new AtomicLong(0);
 
+	public static LocalDateTime DATE_2017_01_01 = LocalDateTime.of(2017,1,1, 0,0);
+
 	public static Item newItemFromNameAndPrice(String name, long price) {
 		Item item = new Item(name, BigDecimal.valueOf(price));
 		item.setId(globalId.getAndIncrement());

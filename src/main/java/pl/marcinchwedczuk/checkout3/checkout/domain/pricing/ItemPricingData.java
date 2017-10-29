@@ -47,7 +47,7 @@ public class ItemPricingData {
 		return totalQuantity.subtract(coveredQuantity);
 	}
 
-	public void createDiscountSegment(BigDecimal segmentQuantity, BigDecimal segmentPrice) {
+	public void createDiscountSegmentFromQtyAndPrice(BigDecimal segmentQuantity, BigDecimal segmentPrice) {
 		BigDecimal totalDiscounted = segmentQuantity.add(
 				computeQuantityCoveredByDoubleSellDiscount());
 

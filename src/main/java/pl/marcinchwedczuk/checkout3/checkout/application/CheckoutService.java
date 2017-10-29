@@ -44,7 +44,8 @@ public class CheckoutService {
 		applyDoubleSellDiscounts(checkoutTime, checkoutPricingData);
 
 		CheckoutResponseDTO checkoutResponseDTO =
-				checkoutMapper.mapToCheckoutResponseDTO(checkoutRequest, checkoutPricingData);
+				checkoutMapper.mapToCheckoutResponseDTO(
+						checkoutRequest.getRequestTime(), checkoutPricingData);
 
 		return checkoutResponseDTO;
 	}

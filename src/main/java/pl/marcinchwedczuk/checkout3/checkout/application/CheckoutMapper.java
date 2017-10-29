@@ -12,6 +12,7 @@ import pl.marcinchwedczuk.checkout3.checkout.domain.pricing.ItemPricingData;
 import pl.marcinchwedczuk.checkout3.checkout.domain.pricing.ItemPricingSegment;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -68,11 +69,11 @@ public class CheckoutMapper {
 	}
 
 	public CheckoutResponseDTO mapToCheckoutResponseDTO(
-			CheckoutRequestDTO checkoutRequest, CheckoutPricingData checkoutPricingData) {
+			LocalDateTime requestTime, CheckoutPricingData checkoutPricingData) {
 
 		CheckoutResponseDTO responseDTO = new CheckoutResponseDTO();
 
-		responseDTO.setRequestTime(checkoutRequest.getRequestTime());
+		responseDTO.setRequestTime(requestTime);
 		responseDTO.setLines(new ArrayList<>());
 
 		for (ItemPricingData itemPricingData : checkoutPricingData.lines()) {
