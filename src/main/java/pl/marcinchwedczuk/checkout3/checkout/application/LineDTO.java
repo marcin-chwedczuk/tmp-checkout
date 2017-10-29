@@ -4,7 +4,7 @@ import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
-public class CheckoutLineDTO {
+public class LineDTO {
 	@NotNull(message = "You must provide item number.")
 	private String itemNumber;
 

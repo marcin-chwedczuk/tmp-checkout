@@ -8,28 +8,28 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class CheckoutRequestDTO {
-	@NotNull(message = "You must provide checkout time.")
-	private LocalDateTime checkoutTime;
+	@NotNull(message = "You must provide request time.")
+	private LocalDateTime requestTime;
 
 	@NotEmpty(message = "You must provide list of items to price.")
 	@Valid
-	private List<CheckoutLineDTO> checkoutLines;
+	private List<LineDTO> lines;
 
 	// getters / setters -------------------------------
 
-	public LocalDateTime getCheckoutTime() {
-		return checkoutTime;
+	public LocalDateTime getRequestTime() {
+		return requestTime;
 	}
 
-	public void setCheckoutTime(LocalDateTime checkoutTime) {
-		this.checkoutTime = checkoutTime;
+	public void setRequestTime(LocalDateTime requestTime) {
+		this.requestTime = requestTime;
 	}
 
-	public List<CheckoutLineDTO> getCheckoutLines() {
-		return checkoutLines;
+	public List<LineDTO> getLines() {
+		return lines;
 	}
 
-	public void setCheckoutLines(List<CheckoutLineDTO> checkoutLines) {
-		this.checkoutLines = checkoutLines;
+	public void setLines(List<LineDTO> lines) {
+		this.lines = lines;
 	}
 }

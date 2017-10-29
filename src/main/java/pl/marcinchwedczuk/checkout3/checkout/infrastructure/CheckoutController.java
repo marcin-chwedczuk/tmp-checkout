@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutRequestDTO;
 import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutResponseDTO;
 import pl.marcinchwedczuk.checkout3.checkout.application.CheckoutService;
-import pl.marcinchwedczuk.checkout3.checkout.application.ItemNotFoundException;
+import pl.marcinchwedczuk.checkout3.checkout.domain.CheckoutException;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -32,7 +32,7 @@ public class CheckoutController {
 
 	private final CheckoutService checkoutService;
 
-	@RequestMapping(value = "/", method = POST)
+	@RequestMapping(value = "", method = POST)
 	public ResponseEntity checkout(
 			@RequestBody @Valid CheckoutRequestDTO checkoutRequestDTO,
 			Errors validationErrors) {
@@ -52,12 +52,10 @@ public class CheckoutController {
 
 			return ResponseEntity.ok(checkoutResponseDTO);
 		}
-		catch (ItemNotFoundException e) {
-			LOGGER.warn("Cannot price unknown item {}.", e.getItemName());
-
+		catch (CheckoutException e) {
 			return ResponseEntity
 					.badRequest()
-					.body("Cannot price unknown item '" + e.getItemName() + "'.");
+					.body(e.getMessage());
 		}
 		catch (Exception e) {
 			LOGGER.error("Unhandled exception during checkout.", e);

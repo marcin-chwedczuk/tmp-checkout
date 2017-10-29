@@ -1,0 +1,13 @@
+{
+  "requestTime": "2018-01-01T00:00:00.000Z",
+  "lines": [
+    {
+      "itemNumber": "ITEM_A",
+      "quantity": "300"
+    },
+    {
+      "itemNumber": "ITEM_B",
+      "quantity": "30"
+    }
+  ]
+}

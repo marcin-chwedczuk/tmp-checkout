@@ -1,0 +1,7 @@
+
+[ ] Add integration tests for REST Api
+[ ] Add double sell rule
+[ ] Refactor and add unit-tests
+[ ] Setup H2 database and prepare DEV and H2 profiles
+[ ]? Maybe use command line runer and WITH_DATA profile to populate database
+[ ] Create README.md file

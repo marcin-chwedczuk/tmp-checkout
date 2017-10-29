@@ -10,6 +10,6 @@ import java.util.Set;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 	Optional<Item> findByNumber(String number);
-	List<Item> findAllByNumber(Collection<String> numbers);
+	List<Item> findAllByNumberIn(Collection<String> numbers);
 }
 

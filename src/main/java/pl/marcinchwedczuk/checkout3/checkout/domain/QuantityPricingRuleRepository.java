@@ -11,10 +11,10 @@ import java.util.List;
 public interface QuantityPricingRuleRepository extends JpaRepository<QuantityDiscountRule,Long> {
 	@Query("select r from QuantityDiscountRule r " +
 			"where r.item = :item " +
-			"and r.minQuantityInclusive >= :quantity " +
-			"and r.maxQuantityExclusive <  :quantity " +
-			"and r.validFrom >= :date " +
-			"and r.validTo < :date")
+			"and r.minQuantityInclusive <= :quantity " +
+			"and r.maxQuantityExclusive >  :quantity " +
+			"and r.validFrom <= :date " +
+			"and r.validTo > :date")
 	List<QuantityDiscountRule> findApplicableRules(
 			Item item,
 			BigDecimal quantity,

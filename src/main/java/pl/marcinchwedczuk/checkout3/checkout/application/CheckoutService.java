@@ -1,5 +1,6 @@
 package pl.marcinchwedczuk.checkout3.checkout.application;
 
+import com.google.common.collect.Sets;
 import org.springframework.stereotype.Service;
 import pl.marcinchwedczuk.checkout3.checkout.domain.*;
 
@@ -25,21 +26,21 @@ public class CheckoutService {
 	private final QuantityPricingRuleRepository quantityPricingRuleRepository;
 	private final PricingCalculator pricingCalculator;
 
-	public CheckoutResponseDTO computePrices(CheckoutRequestDTO checkoutRequest) throws ItemNotFoundException {
+	public CheckoutResponseDTO computePrices(CheckoutRequestDTO checkoutRequest) {
 
-		Map<String, BigDecimal> quantityByItemNumber = checkoutRequest.getCheckoutLines().stream()
-				.collect(groupingBy(CheckoutLineDTO::getItemNumber,
-						mapping(CheckoutLineDTO::getQuantity, summingBigDecimal())));
+		Map<String, BigDecimal> quantityByItemNumber = checkoutRequest.getLines().stream()
+				.collect(groupingBy(LineDTO::getItemNumber,
+						mapping(LineDTO::getQuantity, summingBigDecimal())));
 
-		List<Item> items = itemRepository.findAllByNumber(quantityByItemNumber.keySet());
+		List<Item> items = itemRepository.findAllByNumberIn(quantityByItemNumber.keySet());
+		assertHavePricesForAllItems(items, checkoutRequest.getLines());
 
 		List<ItemPricingData> itemPricingDataList = items.stream()
-				.map(item -> ItemPricingData.fromItemAndQuantity(
-								item, quantityByItemNumber.get(item.getNumber())))
+				.map(item -> createPricingData(item, quantityByItemNumber))
 				.collect(toList());
 
 		// 1. Apply quantity rules
-		LocalDateTime checkoutTime = checkoutRequest.getCheckoutTime();
+		LocalDateTime checkoutTime = checkoutRequest.getRequestTime();
 
 		for (ItemPricingData pricingData : itemPricingDataList) {
 			applyQuantityDiscount(checkoutTime, pricingData);
@@ -49,6 +50,32 @@ public class CheckoutService {
 		CheckoutResponseDTO checkoutResponseDTO =
 				createResponse(checkoutRequest, itemPricingDataList);
 		return checkoutResponseDTO;
+	}
+
+	private ItemPricingData createPricingData(Item item, Map<String, BigDecimal> quantityByItemNumber) {
+		BigDecimal requestedQuantity =
+				quantityByItemNumber.get(item.getNumber());
+
+		return ItemPricingData.fromItemAndQuantity(item, requestedQuantity);
+	}
+
+	private void assertHavePricesForAllItems(List<Item> items, List<LineDTO> checkoutLines) {
+		Set<String> requiredItemNumbers = checkoutLines.stream()
+				.map(LineDTO::getItemNumber)
+				.collect(toSet());
+
+		Set<String> foundItemNumbers = items.stream()
+				.map(Item::getNumber)
+				.collect(toSet());
+
+		Set<String> missing = Sets.difference(requiredItemNumbers, foundItemNumbers);
+
+		if (!missing.isEmpty()) {
+			throw new CheckoutException(
+					"Missing pricing information for item(s): '" +
+					missing.stream().collect(joining("', '")) +
+					"'. Please check service configuration.");
+		}
 	}
 
 	private void applyQuantityDiscount(LocalDateTime checkoutTime, ItemPricingData pricingData) {
@@ -72,6 +99,9 @@ public class CheckoutService {
 
 			pricingData.setDiscountedPrice(discountedPrice);
 		}
+		else {
+			pricingData.setDiscountedPrice(pricingData.getOriginalUnitPrice());
+		}
 	}
 
 	private CheckoutResponseDTO createResponse(
@@ -79,17 +109,19 @@ public class CheckoutService {
 
 		CheckoutResponseDTO responseDTO = new CheckoutResponseDTO();
 
-		responseDTO.setCheckoutTime(checkoutRequest.getCheckoutTime());
-		responseDTO.setPricedLines(new ArrayList<>());
+		responseDTO.setRequestTime(checkoutRequest.getRequestTime());
+		responseDTO.setLines(new ArrayList<>());
 
 		for (ItemPricingData pricingData : pricingDataList) {
 			PricedLineDTO pricedLineDTO = new PricedLineDTO();
 
+			pricedLineDTO.setOriginalUnitPrice(pricingData.getOriginalUnitPrice());
+			pricedLineDTO.setFinalUnitPrice(pricingData.getDiscountedPrice());
+
 			pricedLineDTO.setItemNumber(pricingData.getItem().getNumber());
-			pricedLineDTO.setPrice(pricingData.getDiscountedPrice());
 			pricedLineDTO.setQuantity(pricingData.getQuantity());
 
-			responseDTO.getPricedLines().add(pricedLineDTO);
+			responseDTO.getLines().add(pricedLineDTO);
 		}
 
 		return responseDTO;

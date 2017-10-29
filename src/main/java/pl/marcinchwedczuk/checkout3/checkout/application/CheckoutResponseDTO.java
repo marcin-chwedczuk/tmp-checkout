@@ -4,24 +4,24 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class CheckoutResponseDTO {
-	private LocalDateTime checkoutTime;
-	private List<PricedLineDTO> pricedLines;
+	private LocalDateTime requestTime;
+	private List<PricedLineDTO> lines;
 
 	// getter / setter
 
-	public LocalDateTime getCheckoutTime() {
-		return checkoutTime;
+	public LocalDateTime getRequestTime() {
+		return requestTime;
 	}
 
-	public void setCheckoutTime(LocalDateTime checkoutTime) {
-		this.checkoutTime = checkoutTime;
+	public void setRequestTime(LocalDateTime requestTime) {
+		this.requestTime = requestTime;
 	}
 
-	public List<PricedLineDTO> getPricedLines() {
-		return pricedLines;
+	public List<PricedLineDTO> getLines() {
+		return lines;
 	}
 
-	public void setPricedLines(List<PricedLineDTO> pricedLines) {
-		this.pricedLines = pricedLines;
+	public void setLines(List<PricedLineDTO> lines) {
+		this.lines = lines;
 	}
 }

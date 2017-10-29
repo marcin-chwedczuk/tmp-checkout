@@ -5,9 +5,11 @@ import java.math.BigDecimal;
 public class PricedLineDTO {
 	private String itemNumber;
 	private BigDecimal quantity;
-	private BigDecimal price;
+	private BigDecimal originalUnitPrice;
+	private BigDecimal finalUnitPrice;
 
 	// getter / setter ------------------------
+
 
 	public String getItemNumber() {
 		return itemNumber;
@@ -25,11 +27,19 @@ public class PricedLineDTO {
 		this.quantity = quantity;
 	}
 
-	public BigDecimal getPrice() {
-		return price;
+	public BigDecimal getFinalUnitPrice() {
+		return finalUnitPrice;
 	}
 
-	public void setPrice(BigDecimal price) {
-		this.price = price;
+	public void setFinalUnitPrice(BigDecimal finalUnitPrice) {
+		this.finalUnitPrice = finalUnitPrice;
+	}
+
+	public BigDecimal getOriginalUnitPrice() {
+		return originalUnitPrice;
+	}
+
+	public void setOriginalUnitPrice(BigDecimal originalUnitPrice) {
+		this.originalUnitPrice = originalUnitPrice;
 	}
 }

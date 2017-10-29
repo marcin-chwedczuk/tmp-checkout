@@ -1,0 +1,17 @@
+{
+  "requestTime": "2018-01-01T00:00:00",
+  "lines": [
+    {
+      "itemNumber": "ITEM_A",
+      "quantity": "300",
+      "originalUnitPrice": "100.00",
+      "finalUnitPrice": "90.00"
+    },
+    {
+      "itemNumber": "ITEM_B",
+      "quantity": "30",
+      "originalUnitPrice": "100.00",
+      "finalUnitPrice": "100.00"
+    }
+  ]
+}

@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.marcinchwedczuk.checkout3.checkout.infrastructure.CheckoutController;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -24,7 +23,7 @@ public class DevelopmentController {
 	@RequestMapping(value = "/init-database", method = POST)
 	public ResponseEntity initDatabase() {
 		try {
-			developmentService.initDatabase();
+			developmentService.dropCreateTestData();
 
 			return ResponseEntity
 					.status(HttpStatus.ACCEPTED)

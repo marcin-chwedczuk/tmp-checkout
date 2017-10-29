@@ -23,7 +23,7 @@ public class DevelopmentService {
 	private final QuantityPricingRuleRepository quantityPricingRuleRepository;
 
 	@Transactional
-	public void initDatabase() {
+	public void dropCreateTestData() {
 		// Clean database
 		quantityPricingRuleRepository.deleteAll();
 		itemRepository.deleteAll();
